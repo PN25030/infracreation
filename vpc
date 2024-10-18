@@ -1,0 +1,71 @@
+provider "google" {
+  project = "your-project-id"   # Replace with your project ID
+  region  = "us-central1"        # Replace with the desired region
+}
+
+resource "google_compute_network" "default_vpc" {
+  name                    = "default"
+  auto_create_subnetworks = true
+  description             = "Default VPC with automatic subnet creation"
+}
+
+# Default firewall rules
+resource "google_compute_firewall" "default-allow-internal" {
+  name    = "default-allow-internal"
+  network = google_compute_network.default_vpc.name
+
+  allow {
+    protocol = "icmp"
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["0-65535"]
+  }
+
+  allow {
+    protocol = "udp"
+    ports    = ["0-65535"]
+  }
+
+  source_ranges = ["10.0.0.0/8"]
+  direction     = "INGRESS"
+}
+
+resource "google_compute_firewall" "default-allow-ssh" {
+  name    = "default-allow-ssh"
+  network = google_compute_network.default_vpc.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  direction     = "INGRESS"
+}
+
+resource "google_compute_firewall" "default-allow-rdp" {
+  name    = "default-allow-rdp"
+  network = google_compute_network.default_vpc.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["3389"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  direction     = "INGRESS"
+}
+
+resource "google_compute_firewall" "default-allow-icmp" {
+  name    = "default-allow-icmp"
+  network = google_compute_network.default_vpc.name
+
+  allow {
+    protocol = "icmp"
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  direction     = "INGRESS"
+}
