@@ -1,0 +1,25 @@
+provider "google" {
+  project = "your-project-id"  # Replace with your project ID
+  region  = "us-central1"      # Replace with the desired region
+}
+
+# Define source and destination GCS paths
+variable "source_gcs_folder" {
+  default = "gs://source-bucket/source-folder/"  # Replace with the source GCS folder path
+}
+
+variable "destination_gcs_folder" {
+  default = "gs://destination-bucket/destination-folder/"  # Replace with the destination GCS folder path
+}
+
+# Use null_resource with local-exec to run gsutil command for copying files
+resource "null_resource" "copy_gcs_folder" {
+  provisioner "local-exec" {
+    command = "gsutil -m cp -r ${var.source_gcs_folder}* ${var.destination_gcs_folder}"
+  }
+  
+  # This ensures that the copy happens after Terraform is applied
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+}
